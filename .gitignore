@@ -14,3 +14,5 @@ examples/*/seg/
 examples/*/stills/
 examples/*/*.mp4
 .DS_Store
+__pycache__/
+*.pyc
