@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.venv/
+videos/*/web/
+videos/*/audio/
+videos/*/seg/
+videos/*/stills/
+videos/*/*.mp4
+examples/*/web/
+examples/*/audio/
+examples/*/seg/
+examples/*/stills/
+examples/*/*.mp4
+.DS_Store

@@ -1,0 +1,8 @@
+{
+  "name": "maturitka-vids",
+  "private": true,
+  "description": "Ink-and-watercolour stick-figure explainer videos for Maturitka Formalitka, drawn in code.",
+  "dependencies": {
+    "playwright": "1.49.1"
+  }
+}

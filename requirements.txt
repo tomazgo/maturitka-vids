@@ -1,0 +1,5 @@
+numpy==2.5.4
+scipy==1.18.1
+soundfile==0.14.0
+python-dotenv==1.2.4
+azure-cognitiveservices-speech==1.47.0
