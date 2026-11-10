@@ -16,3 +16,7 @@ examples/*/*.mp4
 .DS_Store
 __pycache__/
 *.pyc
+# finished videos stay local, never on GitHub
+hotove-videa/
+*.mp4
+*.wav

@@ -5,7 +5,7 @@ description: Makes a finished 16:9 present-day explainer video (30–45 s) for a
 
 # /anj-video
 
-Input: an ANJ maturita topic. Output: `videos/<slug>/<slug>.mp4`.
+Input: an ANJ maturita topic. Output: `hotove-videa/<slug>.mp4`.
 
 Read `docs/style-guide-present.md` first. The working example is `examples/travelling/`.
 Everything else (voice tool, stills, build, captions) works as in `.claude/skills/maturitka-video/SKILL.md`.

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds one video: tools/build.sh videos/<slug>
-#   voice (Azure) -> words.js -> sound mix (audio.py) -> shots rendered in parallel -> <slug>.mp4
+#   voice (Azure) -> words.js -> sound mix (audio.py) -> shots rendered in parallel -> hotove-videa/<slug>.mp4
+# Finished videos land in <repo>/hotove-videa/, which git ignores (too big for GitHub).
 # SKIP_VOICE=1 reuses the existing voice. WORKERS=4 sets parallel render processes.
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,6 +9,8 @@ VIDEO_DIR="$(cd "${1:?usage: tools/build.sh videos/<slug>}" && pwd)"
 SLUG="$(basename "$VIDEO_DIR")"
 WORKERS="${WORKERS:-4}"
 PYTHON="$REPO/.venv/bin/python"
+OUTPUT_DIR="$REPO/hotove-videa"
+mkdir -p "$OUTPUT_DIR"
 cd "$VIDEO_DIR"
 
 # style.txt in the video folder picks the look: missing = ink (engine/), "present" = engine/ + engine-present/ on top
@@ -34,5 +37,6 @@ for f in seg/shot_??.mp4; do echo "file '$PWD/$f'"; done > seg/list.txt
 ffmpeg -v error -y -f concat -safe 0 -i seg/list.txt -c copy silent.mp4
 ffmpeg -v error -y -i silent.mp4 -i audio/mix.wav -map 0:v -map 1:a -c:v copy \
   -af "alimiter=limit=0.8:attack=2:release=60,loudnorm=I=-14:TP=-1.5:LRA=9" \
-  -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$SLUG.mp4"
-echo "done: $VIDEO_DIR/$SLUG.mp4"
+  -c:a aac -b:a 192k -ar 48000 -shortest -movflags +faststart "$OUTPUT_DIR/$SLUG.mp4"
+rm -f silent.mp4
+echo "done: $OUTPUT_DIR/$SLUG.mp4"

@@ -5,7 +5,7 @@ description: Makes a finished 16:9 ink-and-watercolour stick-figure explainer vi
 
 # /maturitka-video
 
-Input: content from the user (topic, book, notes). Output: `videos/<slug>/<slug>.mp4`.
+Input: content from the user (topic, book, notes). Output: `hotove-videa/<slug>.mp4`.
 
 Read `docs/style-guide.md` first. The engine already implements the whole look, the captions and the
 transitions. Your job is the script, the scenes (`shots.js`) and the sound effects (`audio.py`).

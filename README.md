@@ -21,7 +21,7 @@ Obe používajú rovnaké teal titulky a **nemajú hudbu v pozadí**, iba zvukov
 4. Napíš Claudovi obsah, napr.: *„Urob video o diele Maco Mlieč od Ľudmily Podjavorinskej.“* alebo *„Urob ANJ video na tému Family.“*
 
 Pri dielach Claude postupuje podľa `.claude/skills/maturitka-video/SKILL.md`, pri anglických témach podľa `.claude/skills/anj-video/SKILL.md`:
-scenár na schválenie → hlas → scény → kontrolné zábery na schválenie → zvuk → hotové video vo `videos/<slug>/<slug>.mp4`.
+scenár na schválenie → hlas → scény → kontrolné zábery na schválenie → zvuk → hotové video v `hotove-videa/<slug>.mp4`.
 
 ## Čo je kde
 
@@ -34,6 +34,7 @@ scenár na schválenie → hlas → scény → kontrolné zábery na schválenie
 | `examples/tri-gastanove-kone/` | Hotový príklad (Tri gaštanové kone) |
 | `captions/` | Pôvodný Remotion komponent titulkov z webu (`BubbleCaptions.tsx`) ako referencia |
 | `samples/` | Ukážkové zábery štýlu |
+| `hotove-videa/` | Hotové MP4, len lokálne (v `.gitignore`, na GitHub nejdú) |
 
 ## Ručne bez Clauda
 
