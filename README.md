@@ -8,7 +8,7 @@ Vysvetľujúce videá pre Maturitka Formalitka v štýle „atrament a akvarel�
 
 | Štýl | Na čo | Engine | Skill | Príklad |
 |---|---|---|---|---|
-| Atrament a akvarel | slovenská literatúra, slovenský hlas | `engine/` | `maturitka-video` | `examples/tri-gastanove-kone/` |
+| Atrament a akvarel | slovenská literatúra, slovenský hlas | `engine/` | `maturitka-video` | `examples/bacik-z-chocholova/`, `examples/tri-gastanove-kone/` |
 | Present | témy ANJ maturity, britský anglický hlas, svetlé súčasné prostredie | `engine/` + `engine-present/` | `anj-video` | `examples/travelling/` |
 
 Obe používajú rovnaké teal titulky a **nemajú hudbu v pozadí**, iba zvukové efekty. Štýl videa určuje súbor `style.txt` v jeho priečinku, hlas `voice.txt` a tempo `rate.txt`.
@@ -31,7 +31,8 @@ scenár na schválenie → hlas → scény → kontrolné zábery na schválenie
 | `.claude/skills/maturitka-video/` | Skill: postup od obsahu po hotové video |
 | `engine/` | Kresliaci engine: papier, atrament, svetlo, hmla, prechody, titulky, postavy, prostredie |
 | `tools/` | `setup.sh`, `new-video.sh`, `vo_azure.py` (hlas), `stills.sh` (kontrolné zábery), `build.sh` (video) |
-| `examples/tri-gastanove-kone/` | Hotový príklad (Tri gaštanové kone) |
+| `examples/bacik-z-chocholova/` | Hotový príklad, 2 min (Keď báčik z Chochoľova umrie), zábery sa časujú podľa hlasu automaticky |
+| `examples/tri-gastanove-kone/` | Hotový príklad, 35 s (Tri gaštanové kone) |
 | `captions/` | Pôvodný Remotion komponent titulkov z webu (`BubbleCaptions.tsx`) ako referencia |
 | `samples/` | Ukážkové zábery štýlu |
 | `hotove-videa/` | Hotové MP4, len lokálne (v `.gitignore`, na GitHub nejdú) |
@@ -46,7 +47,9 @@ tools/stills.sh videos/moje-video 1,5,9,13
 SKIP_VOICE=1 tools/build.sh videos/moje-video
 ```
 
-Príklad: `tools/build.sh examples/tri-gastanove-kone`
+Príklad: `tools/build.sh examples/bacik-z-chocholova`
+
+Hlas sa ukladá po vetách do `audio/cache/`, takže pri oprave scenára Azure syntetizuje len zmenené vety. Render beží na všetkých jadrách okrem dvoch (`WORKERS=n` to prepíše).
 
 ## Licencie
 

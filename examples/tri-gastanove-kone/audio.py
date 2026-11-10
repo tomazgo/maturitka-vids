@@ -1,5 +1,5 @@
 import numpy as np, soundfile as sf, json
-from scipy import signal
+from scipy import fft, signal
 SR = 44100
 import json as _j, os as _os
 WARP = _j.load(open('audio/warp.json')) if _os.path.exists('audio/warp.json') else None
@@ -135,7 +135,7 @@ if vo.ndim > 1: vo = vo.mean(1)
 vo = signal.resample_poly(vo, SR, vsr)
 vo = hp(vo, 90)
 # gentle compression
-envv = np.abs(signal.hilbert(vo)); envv = lp(envv, 20)
+envv = np.abs(signal.hilbert(vo, N=fft.next_fast_len(len(vo)))[:len(vo)]); envv = lp(envv, 20)
 gain = np.where(envv > .15, (.15 / np.maximum(envv, 1e-6)) ** .4, 1.0); vo = vo * gain
 vo = vo / np.max(np.abs(vo)) * .9
 VO = np.zeros(N); VO[:min(N, len(vo))] = vo[:N]

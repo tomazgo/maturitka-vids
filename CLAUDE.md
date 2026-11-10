@@ -14,4 +14,5 @@ English (ANJ) topic videos use the present-day style: follow `.claude/skills/anj
 - Show the script and wait for approval before rendering. Show a stills contact sheet before the full build.
 - Never read, print or commit `.env` files or API keys.
 - Code style: clear long names, early returns, small functions, match the surrounding code.
-- Working example: `examples/tri-gastanove-kone/` (build it with `tools/build.sh examples/tri-gastanove-kone`).
+- Working examples: `examples/bacik-z-chocholova/` (2 min, shots timed from the voice automatically; start from this one)
+  and `examples/tri-gastanove-kone/` (35 s reel, older hand-timed shots).

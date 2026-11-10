@@ -2,12 +2,14 @@
 # Builds one video: tools/build.sh videos/<slug>
 #   voice (Azure) -> words.js -> sound mix (audio.py) -> shots rendered in parallel -> hotove-videa/<slug>.mp4
 # Finished videos land in <repo>/hotove-videa/, which git ignores (too big for GitHub).
-# SKIP_VOICE=1 reuses the existing voice. WORKERS=4 sets parallel render processes.
+# SKIP_VOICE=1 reuses the existing voice. WORKERS=n overrides the number of parallel render processes.
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 VIDEO_DIR="$(cd "${1:?usage: tools/build.sh videos/<slug>}" && pwd)"
 SLUG="$(basename "$VIDEO_DIR")"
-WORKERS="${WORKERS:-4}"
+# Default: all cores but two (one for ffmpeg encoding, one for the system).
+CPU_COUNT="$(sysctl -n hw.ncpu 2>/dev/null || nproc)"
+WORKERS="${WORKERS:-$(( CPU_COUNT > 3 ? CPU_COUNT - 2 : 1 ))}"
 PYTHON="$REPO/.venv/bin/python"
 OUTPUT_DIR="$REPO/hotove-videa"
 mkdir -p "$OUTPUT_DIR"

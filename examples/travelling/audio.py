@@ -5,7 +5,7 @@ import re
 
 import numpy as np
 import soundfile as sf
-from scipy import signal
+from scipy import fft, signal
 
 SR = 44100
 rng = np.random.default_rng(7)
@@ -187,7 +187,7 @@ voice, voice_sr = sf.read("audio/vo.wav")
 if voice.ndim > 1:
     voice = voice.mean(1)
 voice = highpass(signal.resample_poly(voice, SR, voice_sr), 90)
-envelope = lowpass(np.abs(signal.hilbert(voice)), 20)
+envelope = lowpass(np.abs(signal.hilbert(voice, N=fft.next_fast_len(len(voice)))[:len(voice)]), 20)
 voice *= np.where(envelope > .15, (.15 / np.maximum(envelope, 1e-6)) ** .4, 1.0)  # gentle compression
 voice = voice / np.max(np.abs(voice)) * .9
 voice_track = np.zeros(N); voice_track[:min(N, len(voice))] = voice[:N]

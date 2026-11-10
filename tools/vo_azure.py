@@ -4,13 +4,14 @@
 # The SSML language is taken from the voice name (en-GB-RyanNeural -> en-GB).
 #
 # Writes: audio/vo.wav, audio/lines/<n>.wav, audio/words.json, web/words.js, web/warp.js
+# Unchanged sentences are reused from audio/cache/, so only edited sentences cost Azure characters.
 #
 # Credentials (never commit them): AZURE_SPEECH_KEY and AZURE_SPEECH_REGION, read from the environment,
 # from <repo>/.env or <repo>/.env.local, or from the file named in AZURE_ENV_FILE.
 #
 # Optional: if the folder has retime-from.json (word timings of an older voice the shots were timed to),
 # a time warp maps every old sentence onto the new one, so existing animation follows the new voice.
-import json, os, sys
+import hashlib, json, os, sys
 from pathlib import Path
 
 import azure.cognitiveservices.speech as speechsdk
@@ -128,12 +129,32 @@ def write_outputs(chunks, words, anchors, total):
     open("web/words.js", "w").write(words_js)
 
 
+def line_cache_paths(text):
+    # Keyed by voice, rate and text, so an edited sentence (or a new voice) is synthesised again.
+    cache_key = hashlib.sha1(f"{VOICE}|{RATE}|{text}".encode()).hexdigest()[:16]
+    return Path(f"audio/cache/{cache_key}.wav"), Path(f"audio/cache/{cache_key}.json")
+
+
+def load_or_speak_line(synthesizer, text):
+    audio_path, boundaries_path = line_cache_paths(text)
+    if audio_path.exists() and boundaries_path.exists():
+        audio, _ = sf.read(audio_path)
+        return audio, json.loads(boundaries_path.read_text()), True
+    audio, boundaries = trim_to_speech(*speak(synthesizer, text))
+    audio_path.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(audio_path, audio, SR, subtype="FLOAT")
+    boundaries_path.write_text(json.dumps(boundaries))
+    return audio, boundaries, False
+
+
 def main():
     synthesizer = build_synthesizer()
     os.makedirs("audio/lines", exist_ok=True)
     chunks, words, anchors, cursor = [], [], [], 0.0
+    synthesized_characters = 0
     for index, text in enumerate(lines):
-        audio, boundaries = trim_to_speech(*speak(synthesizer, text))
+        audio, boundaries, from_cache = load_or_speak_line(synthesizer, text)
+        synthesized_characters += 0 if from_cache else len(text)
         duration = len(audio) / SR
         sf.write(f"audio/lines/{index}.wav", audio, SR)
         tokens = text.split()
@@ -143,10 +164,11 @@ def main():
             old_start, old_end = retime_line_span(index)
             anchors += [[old_start, round(cursor, 3)], [old_end, round(cursor + duration, 3)]]
         chunks += [audio, np.zeros(int(GAP * SR))]
-        print(f"{index}: {cursor:6.2f} - {cursor + duration:6.2f}  {text}")
+        cache_note = " (cache)" if from_cache else ""
+        print(f"{index}: {cursor:6.2f} - {cursor + duration:6.2f}  {text}{cache_note}")
         cursor += duration + GAP
     write_outputs(chunks, words, anchors, cursor)
-    print("total", round(cursor, 2), "voice", VOICE)
+    print("total", round(cursor, 2), "voice", VOICE, "| Azure characters used:", synthesized_characters)
 
 
 main()

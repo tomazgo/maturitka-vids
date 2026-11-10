@@ -8,7 +8,8 @@ description: Makes a finished 16:9 present-day explainer video (30–45 s) for a
 Input: an ANJ maturita topic. Output: `hotove-videa/<slug>.mp4`.
 
 Read `docs/style-guide-present.md` first. The working example is `examples/travelling/`.
-Everything else (voice tool, stills, build, captions) works as in `.claude/skills/maturitka-video/SKILL.md`.
+Everything else (voice tool, stills, build, captions) works as in `.claude/skills/maturitka-video/SKILL.md`;
+its "Token budget" and "Known pitfalls" sections apply here too.
 
 1. `tools/new-video.sh <slug> present` (copies shots.js, audio.py, style.txt, voice.txt, rate.txt from the example).
 2. Write `script.json`: 8–10 English sentences, 90–110 words. Sentence 1 is a hook question, the middle gives

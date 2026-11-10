@@ -1,13 +1,13 @@
 ---
 name: maturitka-video
-description: Makes a finished 16:9 ink-and-watercolour stick-figure explainer video (25–45 s) for Maturitka Formalitka from a topic or text, with a Slovak Azure voiceover and teal word-by-word captions. Use when the user gives content (a literary work, a topic, notes) and asks for a video, reel, or "urob video".
+description: Makes a finished 16:9 ink-and-watercolour stick-figure explainer video (25–45 s reel, or a 2–3 min walkthrough of a whole work) for Maturitka Formalitka from a topic or text, with a Slovak Azure voiceover and teal word-by-word captions. Use when the user gives content (a literary work, a topic, notes) and asks for a video, reel, or "urob video".
 ---
 
 # /maturitka-video
 
 Input: content from the user (topic, book, notes). Output: `hotove-videa/<slug>.mp4`.
 
-Read `docs/style-guide.md` first. The engine already implements the whole look, the captions and the
+Read `docs/style-guide.md` first. Keep token use low: follow the "Token budget" section at the end. The engine already implements the whole look, the captions and the
 transitions. Your job is the script, the scenes (`shots.js`) and the sound effects (`audio.py`).
 
 ## 0. One-time checks
@@ -21,6 +21,7 @@ transitions. Your job is the script, the scenes (`shots.js`) and the sound effec
 `tools/new-video.sh <slug>` (slug in ASCII kebab case, e.g. `maco-mliec`).
 
 Write `videos/<slug>/script.json`: a JSON list of 6–10 Slovak sentences, about 80–110 words in total.
+For a 2–3 min walkthrough: 35–40 sentences, about 380 words (Lukas at +5 % speaks about 2.9 words per second).
 
 - Sentence 1 is a hook question ("Čo ak by…?", "Prečo…?").
 - Facts must be correct for the Slovak maturita (author, year, literary period, main characters, plot, theme).
@@ -41,13 +42,16 @@ and abbreviations if captions look off. Voice options: `AZURE_VOICE=sk-SK-Viktor
 
 ## 3. Scenes: `videos/<slug>/shots.js`
 
-The file starts from the example (`examples/tri-gastanove-kone/shots.js`). Replace its characters and
-shots. Delete `retime-from.json` if it got copied; it is only for re-voicing old videos.
+Copy the header of `examples/bacik-z-chocholova/shots.js` (everything above `// ---------- shots ----------`):
+it has `addShot(firstLine, lastLine, draw)` and `wordAt('slovo', line)`, which cut shots on sentence boundaries
+from `words.js`, so no seconds are typed by hand and shots follow the voice after any re-voicing. It also has
+ready props (manor, tavern, ash tree, wagon, carriage, market stall, church, thought cloud, grain sack, document)
+and characters (gazda, nobleman, priest). Delete the story-specific ones you do not need.
+`examples/tri-gastanove-kone/` is the older hand-timed style; do not copy its timing. Delete `retime-from.json` if it got copied.
 
-- One shot per sentence (or two for long sentences). `SHOTS.push({ start, end, tr: 'whip', draw(ctx, lt, t) { … } })`.
-  `start`/`end` are voice seconds from step 2; shots must be contiguous (next start = previous end), the first starts at 0
-  and the last ends about 0.6 s after the final word. `lt` is the time inside the shot, `t` the global time.
-- Sync key moments to words with `wordTime('slovo', fromSecond)` (lower case, no punctuation).
+- One shot per 1–3 sentences: `addShot(4, 5, (ctx, lt, t) => { … })`. `lt` is the time inside the shot, `t` the global time.
+- Sync key moments to words with `wordAt('slovo', line)` (lower case, no punctuation; returns a global second),
+  e.g. `popAt(t, wordAt('1890', 2))` for a pop-in tag.
 - Every frame: `applyCam(ctx, cam, depth)` then background, then props and characters. Use
   `centerCam(t, zoom, dx, dy)`, animate with `kf(lt, [[t0, v0], [t1, v1, easing]])`.
 - Keep the bottom 25 % free of important action (mist and captions live there). Characters stand on y ≈ 820–900.
@@ -72,13 +76,16 @@ Do not edit `engine/` for one video; the build copies it fresh every time.
 tools/stills.sh videos/<slug> 1,5,9,13,17,21
 ```
 
-Open `videos/<slug>/stills/sheet.jpg` and check: every character is fully in frame, nothing important in
+Render one still per shot at about 72 % of its length, in batches of 12 (one sheet per batch).
+After fixes re-render only the shots you changed. Open `videos/<slug>/stills/sheet.jpg` and check: every character is fully in frame, nothing important in
 the bottom quarter, the action matches the caption, faces read clearly. Fix and re-render stills until it is right.
 
 ## 5. Sound
 
 Adapt `videos/<slug>/audio.py`: it reads `audio/vo.wav` and writes `audio/mix.wav`. Keep the synth helpers,
 replace the effect timeline with effects for your shots (whoosh on transitions). No background music or pads.
+Place effects with `word_at('slovo', line)` and list each shot's first line in `SHOT_FIRST_LINES` for the whooshes,
+as in `examples/bacik-z-chocholova/audio.py`. Never type seconds by hand.
 `DUR` follows the voice length automatically.
 
 ## 6. Build
@@ -89,3 +96,23 @@ SKIP_VOICE=1 tools/build.sh videos/<slug>
 
 Verify with `ffprobe` (duration, 1920×1080, audio stream) and report the path to the user.
 Do not commit rendered videos or `.env`.
+
+## Token budget
+
+- Do not read `engine/` files whole. The table in step 3 lists the API; when you need one function's options,
+  `grep -n "function drawX" engine/*.js` and read only those lines.
+- Copy the header of `examples/bacik-z-chocholova/shots.js` with `sed`/`cp` instead of retyping it.
+- Write `shots.js` in one pass, then fix by small edits, never by rewriting the file.
+- Re-voicing costs nothing for unchanged sentences: `vo_azure.py` caches every sentence in `audio/cache/`
+  and prints how many Azure characters it used. After the voice exists, always build with `SKIP_VOICE=1`.
+- Stills: batches of 12 and only the changed shots afterwards (see step 4). Do not extract frames from the final MP4
+  unless something looks wrong there.
+- Do not read `audio/words.json`; `vo_azure.py` already prints each sentence's start and end.
+
+## Known pitfalls
+
+- `browAng`: negative = angry (inner ends down), positive = sad or worried.
+- Eyes `half` read as smug, not sad. For sadness use `normal` eyes, `frown` and a positive `browAng`.
+- The mouth sits at head centre + .085 (in head units). A moustache must stay above about +.05, or it reads as a smile.
+- A negative scale flips vertically as well. Mirror props with a separate `flip` (`ctx.scale(s * flip, s)`).
+- Seated characters (`SEATED_LEGS`) on a wagon or carriage: put `y` on the seat top, not above it.

@@ -12,7 +12,7 @@ shows the bright cartoon style this replaced. Do not go back to it.
 
 - 16:9, 1920 × 1080, 30 fps container.
 - Drawings hold for 2.5 frames (12 drawings per second) for a hand-drawn feel. Captions run at full 30 fps.
-- Length 25–45 s, 6–10 sentences of voiceover.
+- Length 25–45 s (6–10 sentences) for a reel, or 2–3 min (35–40 sentences) for a walkthrough of a whole work.
 
 ## Look
 
