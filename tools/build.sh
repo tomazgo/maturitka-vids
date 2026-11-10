@@ -10,9 +10,11 @@ WORKERS="${WORKERS:-4}"
 PYTHON="$REPO/.venv/bin/python"
 cd "$VIDEO_DIR"
 
+# style.txt in the video folder picks the look: missing = ink (engine/), "present" = engine/ + engine-present/ on top
 assemble_web() {
   mkdir -p web
   rsync -a "$REPO/engine/" web/
+  [ -f style.txt ] && rsync -a "$REPO/engine-$(cat style.txt)/" web/
   cp shots.js web/shots.js
 }
 
@@ -21,7 +23,7 @@ assemble_web
 "$PYTHON" audio.py
 
 mkdir -p seg; find seg -type f -delete
-N=$(grep -c "SHOTS.push" web/shots.js)
+N=$(node "$REPO/tools/render.js" count | tail -1)
 pids=()
 for ((w = 0; w < WORKERS; w++)); do
   ids=""; for ((i = w; i < N; i += WORKERS)); do ids="${ids:+$ids,}$i"; done

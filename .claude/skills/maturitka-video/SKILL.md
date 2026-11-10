@@ -78,7 +78,7 @@ the bottom quarter, the action matches the caption, faces read clearly. Fix and 
 ## 5. Sound
 
 Adapt `videos/<slug>/audio.py`: it reads `audio/vo.wav` and writes `audio/mix.wav`. Keep the synth helpers,
-replace the effect timeline with effects for your shots (whoosh on transitions, soft pad underneath).
+replace the effect timeline with effects for your shots (whoosh on transitions). No background music or pads.
 `DUR` follows the voice length automatically.
 
 ## 6. Build

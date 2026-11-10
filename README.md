@@ -4,14 +4,23 @@ Vysvetľujúce videá pre Maturitka Formalitka v štýle „atrament a akvarel�
 
 ![Finálny štýl](samples/finalny-styl.jpg)
 
+## Dva štýly
+
+| Štýl | Na čo | Engine | Skill | Príklad |
+|---|---|---|---|---|
+| Atrament a akvarel | slovenská literatúra, slovenský hlas | `engine/` | `maturitka-video` | `examples/tri-gastanove-kone/` |
+| Present | témy ANJ maturity, britský anglický hlas, svetlé súčasné prostredie | `engine/` + `engine-present/` | `anj-video` | `examples/travelling/` |
+
+Obe používajú rovnaké teal titulky a **nemajú hudbu v pozadí**, iba zvukové efekty. Štýl videa určuje súbor `style.txt` v jeho priečinku, hlas `voice.txt` a tempo `rate.txt`.
+
 ## Ako vyrobiť video s Claude Code
 
 1. Naklonuj repo a otvor ho v Claude Code.
 2. Prvýkrát spusti `tools/setup.sh` (Node, Chromium, Python prostredie).
-3. Do `.env` doplň `AZURE_SPEECH_KEY` (Azure Speech, úroveň Free F0, región West Europe).
-4. Napíš Claudovi obsah, napr.: *„Urob video o diele Maco Mlieč od Ľudmily Podjavorinskej.“*
+3. Do `.env` alebo `.env.local` v tomto repe doplň `AZURE_SPEECH_KEY` (Azure Speech, úroveň Free F0, región West Europe).
+4. Napíš Claudovi obsah, napr.: *„Urob video o diele Maco Mlieč od Ľudmily Podjavorinskej.“* alebo *„Urob ANJ video na tému Family.“*
 
-Claude postupuje podľa skillu `.claude/skills/maturitka-video/SKILL.md`:
+Pri dielach Claude postupuje podľa `.claude/skills/maturitka-video/SKILL.md`, pri anglických témach podľa `.claude/skills/anj-video/SKILL.md`:
 scenár na schválenie → hlas → scény → kontrolné zábery na schválenie → zvuk → hotové video vo `videos/<slug>/<slug>.mp4`.
 
 ## Čo je kde
@@ -29,7 +38,7 @@ scenár na schválenie → hlas → scény → kontrolné zábery na schválenie
 ## Ručne bez Clauda
 
 ```
-tools/new-video.sh moje-video          # vytvorí videos/moje-video
+tools/new-video.sh moje-video          # vytvorí videos/moje-video (ANJ: tools/new-video.sh moje-video present)
 # uprav videos/moje-video/script.json, shots.js, audio.py
 cd videos/moje-video && ../../.venv/bin/python ../../tools/vo_azure.py && cd ../..
 tools/stills.sh videos/moje-video 1,5,9,13

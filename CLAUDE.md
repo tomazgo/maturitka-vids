@@ -7,7 +7,10 @@ When the user gives content (a book, a topic, notes) and wants a video, follow
 `.claude/skills/maturitka-video/SKILL.md` step by step. The look is fixed: read `docs/style-guide.md`
 and do not restyle the engine, captions or transitions unless the user asks.
 
-- All user-facing text (script, captions) is in Slovak. Code and comments in English.
+English (ANJ) topic videos use the present-day style: follow `.claude/skills/anj-video/SKILL.md` and
+`docs/style-guide-present.md`. Neither style has background music, only sound effects.
+
+- User-facing text is in Slovak for literature videos and in English for ANJ videos. Code and comments in English.
 - Show the script and wait for approval before rendering. Show a stills contact sheet before the full build.
 - Never read, print or commit `.env` files or API keys.
 - Code style: clear long names, early returns, small functions, match the surrounding code.

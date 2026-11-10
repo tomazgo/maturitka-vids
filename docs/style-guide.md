@@ -54,6 +54,7 @@ Captions are generated automatically from the voice's word timings. You never ha
 
 ## Sound
 
-`audio.py` in each video mixes the voice with code-generated effects (hooves, whooshes, chimes, pads).
+`audio.py` in each video mixes the voice with code-generated effects (hooves, whooshes, chimes).
+**No background music**, not even a soft pad: voice and sound effects only.
 Effects are placed at old-clock times and shifted with `toNew()`. Keep them quiet under the voice;
 the final mix is loudness-normalised to −14 LUFS.

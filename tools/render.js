@@ -7,12 +7,14 @@ const fs = require('fs');
   const mode = process.argv[2];
   const browser = await chromium.launch({ ...(process.env.CHROME ? { executablePath: process.env.CHROME } : {}), args: ['--allow-file-access-from-files'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
-  page.on('console', m => console.log('[page]', m.text()));
+  if (process.argv[2] !== 'count') page.on('console', m => console.log('[page]', m.text()));
   page.on('pageerror', e => console.log('[err]', e.message));
   await page.goto('file://' + process.cwd() + '/web/index.html');
   await page.evaluate(async () => { await document.fonts.load('700 40px Poppins'); await document.fonts.load("700 40px 'Space Grotesk'"); await document.fonts.load('700 40px Lora'); await document.fonts.load('600 40px Lora'); });
   const total = await page.evaluate(() => window.TOTAL_FRAMES);
-  if (mode === 'stills') {
+  if (mode === 'count') {
+    console.log(await page.evaluate(() => SHOTS.length));
+  } else if (mode === 'stills') {
     const times = process.argv[3].split(',').map(Number);
     fs.mkdirSync('stills', { recursive: true });
     for (const t of times) {

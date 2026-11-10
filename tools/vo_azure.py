@@ -1,10 +1,12 @@
-# Slovak voiceover with Azure Speech neural voices, one sentence at a time, with real word timings.
+# Voiceover with Azure Speech neural voices, one sentence at a time, with real word timings.
 # Run from a video folder (videos/<slug>/) that has script.json: a JSON list of sentences.
+# The voice comes from AZURE_VOICE, else from voice.txt in the video folder, else sk-SK-LukasNeural.
+# The SSML language is taken from the voice name (en-GB-RyanNeural -> en-GB).
 #
 # Writes: audio/vo.wav, audio/lines/<n>.wav, audio/words.json, web/words.js, web/warp.js
 #
 # Credentials (never commit them): AZURE_SPEECH_KEY and AZURE_SPEECH_REGION, read from the environment,
-# from <repo>/.env, or from the file named in AZURE_ENV_FILE.
+# from <repo>/.env or <repo>/.env.local, or from the file named in AZURE_ENV_FILE.
 #
 # Optional: if the folder has retime-from.json (word timings of an older voice the shots were timed to),
 # a time warp maps every old sentence onto the new one, so existing animation follows the new voice.
@@ -24,11 +26,19 @@ EDGE_PAD = 0.05
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 load_dotenv(REPO_ROOT / ".env")
+load_dotenv(REPO_ROOT / ".env.local")
 if os.environ.get("AZURE_ENV_FILE"):
     load_dotenv(Path(os.environ["AZURE_ENV_FILE"]).expanduser())
 
-VOICE = os.environ.get("AZURE_VOICE", "sk-SK-LukasNeural")
-RATE = os.environ.get("AZURE_RATE", "+5%")
+
+def read_folder_setting(file_name):
+    path = Path(file_name)
+    return path.read_text().strip() if path.exists() else None
+
+
+VOICE = os.environ.get("AZURE_VOICE") or read_folder_setting("voice.txt") or "sk-SK-LukasNeural"
+VOICE_LANGUAGE = "-".join(VOICE.split("-")[:2])
+RATE = os.environ.get("AZURE_RATE") or read_folder_setting("rate.txt") or "+5%"
 
 
 def first_env(*names):
@@ -38,7 +48,7 @@ def first_env(*names):
 speech_key = first_env("AZURE_SPEECH_KEY", "AZURE_SPEECH_KEY_1", "AZURE_KEY", "SPEECH_KEY")
 speech_region = first_env("AZURE_SPEECH_REGION", "AZURE_REGION", "SPEECH_REGION") or "westeurope"
 if not speech_key:
-    sys.exit("Missing AZURE_SPEECH_KEY (environment, <repo>/.env or AZURE_ENV_FILE)")
+    sys.exit("Missing AZURE_SPEECH_KEY (environment, <repo>/.env, <repo>/.env.local or AZURE_ENV_FILE)")
 
 lines = json.load(open("script.json"))
 retime_words = json.load(open("retime-from.json")) if os.path.exists("retime-from.json") else None
@@ -64,7 +74,7 @@ def speak(synthesizer, text):
             boundaries.append((event.audio_offset / 1e7, event.duration.total_seconds()))
 
     synthesizer.synthesis_word_boundary.connect(on_boundary)
-    ssml = (f'<speak version="1.0" xml:lang="sk-SK"><voice name="{VOICE}">'
+    ssml = (f'<speak version="1.0" xml:lang="{VOICE_LANGUAGE}"><voice name="{VOICE}">'
             f'<prosody rate="{RATE}">{escape_xml(text)}</prosody></voice></speak>')
     result = synthesizer.speak_ssml_async(ssml).get()
     synthesizer.synthesis_word_boundary.disconnect_all()

@@ -6,7 +6,9 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 VIDEO_DIR="$(cd "${1:?usage: tools/stills.sh videos/<slug> 1.5,6,12}" && pwd)"
 TIMES="${2:?pass comma separated seconds}"
 cd "$VIDEO_DIR"
-mkdir -p web && rsync -a "$REPO/engine/" web/ && cp shots.js web/shots.js
+mkdir -p web && rsync -a "$REPO/engine/" web/
+[ -f style.txt ] && rsync -a "$REPO/engine-$(cat style.txt)/" web/
+cp shots.js web/shots.js
 [ -f web/words.js ] || { echo "run the voice first: tools/build.sh or .venv/bin/python tools/vo_azure.py"; exit 1; }
 rm -f stills/s_*.jpg
 node "$REPO/tools/render.js" stills "$TIMES"

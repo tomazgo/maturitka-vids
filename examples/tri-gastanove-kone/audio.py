@@ -129,92 +129,6 @@ place(sfx, neigh(.7), 29.4, .35); place(sfx, thud(55, .5, 1.0), 30.13); place(sf
 # H ride away
 gallop(30.71, 6.0, .22, .14); place(sfx, sparkle_sfx(), 34.6, .35)
 
-# ---------------- music (procedural sea-shanty jig, D minor, 6/8) ----------------
-BPM = 132  # dotted-quarter = beat; eighth = 60/BPM/... use eighth duration
-E8 = 60 / BPM / 2 * 1.0  # eighth note seconds (6/8 feel)
-def midi(m): return 440 * 2 ** ((m - 69) / 12)
-def saw_pad(f, dur, g=.2):
-    n = int(dur * SR); t = T(n); vib = 1 + .004 * np.sin(2 * np.pi * 5.5 * t)
-    ph = np.cumsum(f * vib) / SR; x = 2 * (ph % 1) - 1 + .6 * (2 * ((ph * 1.005) % 1) - 1)
-    x = lp(x, 1400); e = np.minimum(1, t / .06) * np.minimum(1, (dur - t) / .08)
-    return x * e * g
-mel = [62, 65, 69, 67, 65, 64, 62, 64, 65, 64, 62, 61, 62, 65, 69, 72, 70, 69, 67, 65, 64, 62, 61, 62]  # 24 eighths = 4 bars of 6/8
-chords = [(50, 57, 62, 65), (48, 55, 60, 64), (46, 53, 58, 62), (45, 52, 57, 61)]
-plk_cache = {}
-def plk(m, dur):
-    k = (m, round(dur, 2))
-    if k not in plk_cache: plk_cache[k] = pluck(midi(m), dur)
-    return plk_cache[k]
-music = np.zeros(N)
-def jig(t0, t1, g=1.0, mel_on=True, bass_on=True, pad_on=True, drum=True, mel_g=.55):
-    t = t0; i = 0
-    while t < t1:
-        bar = (i // 6) % 4; ch = chords[bar]
-        if bass_on and i % 6 == 0: place(music, plk(ch[0] - 12, E8 * 6) * .7, t, g)
-        if pad_on and i % 6 == 0:
-            for m in ch[1:]: place(music, saw_pad(midi(m), min(E8 * 6, t1 - t)), t, g * .25)
-        if mel_on and i % 3 == 0: place(music, plk(mel[i % 24], E8 * 3) * .8, t, g * mel_g)
-        # light percussion: frame drum on 1 and 4
-        if drum and i % 6 == 0: place(music, thud(100, .12, .15), t, g)
-        t += E8; i += 1
-def drone(t0, t1, g=1.0):
-    n = int((t1 - t0) * SR); t = T(n)
-    x = (np.sin(2 * np.pi * 73.4 * t) + .5 * np.sin(2 * np.pi * 110 * t + 1) + .3 * np.sin(2 * np.pi * 146.8 * t * 1.003)) * (0.7 + .3 * np.sin(2 * np.pi * .3 * t))
-    x *= np.minimum(1, t / .4) * np.minimum(1, (t1 - t0 - t) / .4)
-    place(music, x * .25, t0, g)
-# ---- whimsical comedic underscore (replaces jig) ----
-music = np.zeros(N)
-BEAT = 60 / 104
-def pizz(m, dur=.45, g=1.0):
-    k = ('pz', m, round(dur, 2))
-    if k not in plk_cache:
-        x = pluck(midi(m), dur); n = len(x); t = T(n)
-        x = bp(x, 180, 3500) * np.exp(-t * 7) + bp(rng.standard_normal(n), 1500, 5000) * np.exp(-t * 300) * .15
-        plk_cache[k] = x / (np.max(np.abs(x)) + 1e-9)
-    return plk_cache[k] * g
-def glock(m, dur=1.2, g=1.0):
-    n = int(dur * SR); t = T(n); f = midi(m)
-    x = (np.sin(2 * np.pi * f * t) + .35 * np.sin(2 * np.pi * f * 2.76 * t) * np.exp(-t * 6) + .15 * np.sin(2 * np.pi * f * 5.4 * t) * np.exp(-t * 12))
-    return x * np.exp(-t * 3.5) * np.minimum(1, t / .002) * .5 * g
-def reed(m, dur=.22, g=1.0):
-    n = int(dur * SR); t = T(n); f = midi(m); ph = (f * t) % 1
-    x = lp(np.sign(np.sin(2 * np.pi * ph)) * .6 + (2 * ph - 1) * .4, 900)
-    return x * np.minimum(1, t / .015) * np.exp(-t * 6) * np.minimum(1, (dur - t) / .03) * .5 * g
-def strings(ms, dur, g=1.0):
-    n = int(dur * SR); t = T(n); x = np.zeros(n)
-    for m in ms:
-        for d in (-.004, 0, .005):
-            ph = np.cumsum(midi(m) * (1 + d) * (1 + .003 * np.sin(2 * np.pi * 5 * t))) / SR; x += 2 * (ph % 1) - 1
-    x = lp(x / (len(ms) * 3), 1100); e = np.minimum(1, t / .5) * np.minimum(1, (dur - t) / .5)
-    return x * e * g
-# progressions (root, chord tones) in midi
-DM = [(38, (62, 65, 69)), (43, (62, 67, 71)), (38, (62, 65, 69)), (45, (61, 64, 67))]   # Dm G Dm A7
-DMAJ = [(38, (62, 66, 69)), (43, (62, 67, 71)), (45, (61, 64, 69)), (38, (62, 66, 69))]  # D G A D
-motif = [(0, 74), (.5, 77), (1, 81), (2, 79), (2.5, 77), (3, 76)]  # glock line over 1 bar
-def playful(t0, t1, prog, g=1.0, glock_on=True, stabs=True):
-    t = t0; bar = 0
-    while t < t1 - .05:
-        root, ch = prog[bar % 4]
-        place(music, pizz(root, .5, .9), t, g); place(music, pizz(root + 7, .5, .7), t + 2 * BEAT, g)
-        if stabs:
-            for bt in (1, 3): 
-                for m in ch: place(music, pizz(m - 12, .3, .28), t + bt * BEAT, g)
-        if glock_on and bar % 2 == 0:
-            for (bt, m) in motif:
-                mm = m if prog is DM else m + (1 if m % 12 in (5,) else 0)
-                if t + bt * BEAT < t1: place(music, glock(mm, 1.0, .35), t + bt * BEAT, g)
-        t += 4 * BEAT; bar += 1
-playful(0, 9.68, DMAJ, .8, glock_on=True)
-playful(9.68, 15.46, DMAJ, .6, glock_on=True, stabs=False)
-place(music, strings((50, 57, 62), 4.2, .35), 15.46)
-for k in range(5): place(music, pizz([38, 45][k % 2], .6, .55), 15.5 + k * BEAT * 1.5)
-place(music, strings((50, 56, 62), 8.9, .3), 19.46)
-for k in range(10): place(music, pizz([38, 37][k % 2], .6, .5), 19.5 + k * BEAT * 1.4)
-place(music, strings((50, 57, 62, 65), 2.6, .3), 28.15)
-playful(30.71, 36.6, DMAJ, .9)
-for m in (62, 66, 69, 74): place(music, glock(m + 12, 1.3, .25), 36.3)
-music = lp(music, 6000)
-
 # ---------------- VO + mix ----------------
 vo, vsr = sf.read('audio/vo.wav')
 if vo.ndim > 1: vo = vo.mean(1)
@@ -225,10 +139,8 @@ envv = np.abs(signal.hilbert(vo)); envv = lp(envv, 20)
 gain = np.where(envv > .15, (.15 / np.maximum(envv, 1e-6)) ** .4, 1.0); vo = vo * gain
 vo = vo / np.max(np.abs(vo)) * .9
 VO = np.zeros(N); VO[:min(N, len(vo))] = vo[:N]
-# duck music under VO
-venv = lp(np.abs(VO), 6); vtrack = np.clip(venv / .05, 0, 1)
-duck = 1 - .55 * vtrack
-mixL = VO * 1.0 + music * .22 * duck + sfx * .7
+# no background music: voice plus sound effects only
+mixL = VO * 1.0 + sfx * .7
 mixR = mixL.copy()
 out = np.stack([mixL, mixR], 1)
 fade = np.ones(N); fl = int(.5 * SR); fade[-fl:] = np.linspace(1, 0, fl); out *= fade[:, None]
