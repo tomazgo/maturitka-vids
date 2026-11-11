@@ -22,7 +22,7 @@ from scipy import signal
 
 SR = 44100
 AZURE_SR = 48000
-GAP = 0.28
+GAP = 0.5  # calm pause between sentences
 EDGE_PAD = 0.05
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -39,7 +39,7 @@ def read_folder_setting(file_name):
 
 VOICE = os.environ.get("AZURE_VOICE") or read_folder_setting("voice.txt") or "sk-SK-LukasNeural"
 VOICE_LANGUAGE = "-".join(VOICE.split("-")[:2])
-RATE = os.environ.get("AZURE_RATE") or read_folder_setting("rate.txt") or "+5%"
+RATE = os.environ.get("AZURE_RATE") or read_folder_setting("rate.txt") or "-5%"
 
 
 def first_env(*names):

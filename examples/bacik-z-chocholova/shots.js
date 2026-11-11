@@ -5,7 +5,7 @@
 const normalizeWord = word => word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const lineWords = line => WORDS.filter(w => w.line === line);
 const LAST_LINE = WORDS[WORDS.length - 1].line;
-const CUT_BEFORE_LINE = .14; // half of the 0.28 s gap between sentences
+const CUT_BEFORE_LINE = .25; // half of the 0.5 s gap between sentences
 const CLOSING_HOLD = .65;
 
 function lineStart(line) { return lineWords(line)[0].s; }
@@ -22,13 +22,13 @@ const SHOTS = [];
 function addShot(firstLine, lastLine, draw) {
   SHOTS.push({ start: shotStart(firstLine), end: shotEnd(lastLine), tr: 'whip', draw });
 }
-// pop-in 0 -> 1 with overshoot, starting at global second `at`
-const popAt = (t, at, length = .3) => kf(t, [[at, 0], [at + length, 1, backOut]]);
+// gentle fade-up 0 -> 1 without overshoot, starting at global second `at`
+const popAt = (t, at, length = .5) => kf(t, [[at, 0], [at + length, 1, easeOut]]);
 const fadeAt = (t, at, length = .4) => kf(t, [[at, 0], [at + length, 1]]);
 
 // ---------- camera and motion ----------
 const C = (base, extra) => Object.assign({}, base, extra);
-const handheld = (t, a = 4) => shake(t * .2, a * .25, 1, 2);
+const handheld = (t, a = 2) => shake(t * .15, a * .2, 1, 2);
 const centerCam = (t, z = 1, dx = 0, dy = 0, a = 3) => { const hh = handheld(t, a); return { x: W / 2 + dx + hh[0], y: H / 2 + dy + hh[1], z, r: 0 }; };
 const walkLegs = (t, sp = 9, amp = .5) => ({ L: [Math.sin(t * sp) * amp + .05, -Math.max(0, Math.sin(t * sp + 1)) * .7], R: [-Math.sin(t * sp) * amp + .05, -Math.max(0, -Math.sin(t * sp + 1)) * .7] });
 const walkArms = (t, sp = 9) => ({ L: [.3 - Math.sin(t * sp) * .4, -.3], R: [.3 + Math.sin(t * sp) * .4, -.3] });
@@ -317,7 +317,7 @@ addShot(1, 2, (ctx, lt, t) => {
   const cam = centerCam(t, kf(lt, [[0, 1.0], [8, 1.06]]), 0, 0, 2);
   applyCam(ctx, cam, 1);
   ctx.fillStyle = '#ead9bb'; ctx.fillRect(-500, -500, W + 1000, H + 1000);
-  const fly = kf(lt, [[0, 0], [.7, 1, backOut]]);
+  const fly = kf(lt, [[0, 0], [1.4, 1, easeOut]]);
   drawBook(ctx, lerp(-400, 700, fly), 470 + Math.sin(t * 1.5) * 8, .95, lerp(-.6, -.05, fly),
     { title: ['Keď báčik', 'z Chochoľova', 'umrie'], author: 'Martin Kukučín', cover: '#5c4033', spine: '#3e2a20', art: c => drawManor(c, 0, 60, .45) });
   const authorAt = wordAt('kukučín', 2);

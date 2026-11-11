@@ -21,7 +21,7 @@ transitions. Your job is the script, the scenes (`shots.js`) and the sound effec
 `tools/new-video.sh <slug>` (slug in ASCII kebab case, e.g. `maco-mliec`).
 
 Write `videos/<slug>/script.json`: a JSON list of 6–10 Slovak sentences, about 80–110 words in total.
-For a 2–3 min walkthrough: 35–40 sentences, about 380 words (Lukas at +5 % speaks about 2.9 words per second).
+For a 2–3 min walkthrough: 30–35 sentences, about 320 words (Lukas at −5 % with 0.5 s pauses speaks about 2.5 words per second).
 
 - Sentence 1 is a hook question ("Čo ak by…?", "Prečo…?").
 - Facts must be correct for the Slovak maturita (author, year, literary period, main characters, plot, theme).
@@ -49,13 +49,14 @@ ready props (manor, tavern, ash tree, wagon, carriage, market stall, church, tho
 and characters (gazda, nobleman, priest). Delete the story-specific ones you do not need.
 `examples/tri-gastanove-kone/` is the older hand-timed style; do not copy its timing. Delete `retime-from.json` if it got copied.
 
-- One shot per 1–3 sentences: `addShot(4, 5, (ctx, lt, t) => { … })`. `lt` is the time inside the shot, `t` the global time.
+- Calm pacing: one shot per 2–3 sentences (at least about 6 s): `addShot(4, 5, (ctx, lt, t) => { … })`. `lt` is the time inside the shot, `t` the global time.
 - Sync key moments to words with `wordAt('slovo', line)` (lower case, no punctuation; returns a global second),
   e.g. `popAt(t, wordAt('1890', 2))` for a pop-in tag.
 - Every frame: `applyCam(ctx, cam, depth)` then background, then props and characters. Use
   `centerCam(t, zoom, dx, dy)`, animate with `kf(lt, [[t0, v0], [t1, v1, easing]])`.
 - Keep the bottom 25 % free of important action (mist and captions live there). Characters stand on y ≈ 820–900.
-- Each shot has one clear action that shows the sentence: someone walks in, a heart breaks, coins appear.
+- Each shot has one clear, slow action that shows the sentence: someone walks in, a heart breaks, coins appear.
+- Few effects: at most one or two tags per shot (`popAt` fades them up softly), no decorative bursts, sparkles or shakes.
 
 Building blocks (see the files for every option):
 
@@ -83,7 +84,7 @@ the bottom quarter, the action matches the caption, faces read clearly. Fix and 
 ## 5. Sound
 
 Adapt `videos/<slug>/audio.py`: it reads `audio/vo.wav` and writes `audio/mix.wav`. Keep the synth helpers,
-replace the effect timeline with effects for your shots (whoosh on transitions). No background music or pads.
+replace the effect timeline with a few effects for your shots (whoosh on transitions, one sound per key action, not a pop for every tag). No background music or pads.
 Place effects with `word_at('slovo', line)` and list each shot's first line in `SHOT_FIRST_LINES` for the whooshes,
 as in `examples/bacik-z-chocholova/audio.py`. Never type seconds by hand.
 `DUR` follows the voice length automatically.

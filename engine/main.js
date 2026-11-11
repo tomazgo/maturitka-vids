@@ -11,7 +11,8 @@ const TOTAL_FRAMES = Math.round(DUR * FPS);
 
 // ---------- ink & watercolour look ----------
 const DRAWN_FPS = 12; // hand-drawn hold: every drawing stays on screen for 2.5 video frames
-const TRANSITION_HALF = .5; // ink-bleed dissolve lasts 1 s around each cut
+const TRANSITION_HALF = .75; // ink-bleed dissolve lasts 1.5 s around each cut
+const BOIL_HOLD = 3; // line wobble changes every 3rd drawing (4 times a second), calm enough not to distract
 const PAPER = '#f4e9d8', SEPIA_INK = '#5c4033', OCHRE = '#dda15e';
 const makeCanvas = (w = W, h = H) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 
@@ -145,7 +146,7 @@ function drawInkBleed(transition, t) {
 // washed-out watercolour colour, wobbling ink lines, then the paper underneath
 function inkGrade(drawnFrame) {
   out.save(); out.setTransform(1, 0, 0, 1, 0, 0);
-  out.filter = `url(#boil${drawnFrame % 3}) saturate(.55) sepia(.28) contrast(1.04)`;
+  out.filter = `url(#boil${Math.floor(drawnFrame / BOIL_HOLD) % 3}) saturate(.55) sepia(.28) contrast(1.04)`;
   out.drawImage(sceneA, 0, 0);
   out.filter = 'none';
   out.globalCompositeOperation = 'multiply'; out.drawImage(paperTexture, 0, 0);
@@ -153,9 +154,9 @@ function inkGrade(drawnFrame) {
 }
 function drawGodRays(ctx, t) {
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'screen';
-  const sway = Math.sin(t * .35) * .03;
+  const sway = Math.sin(t * .2) * .02;
   for (let i = 0; i < 5; i++) {
-    const x = 180 + i * 230, w = 70 + (i % 3) * 45, a = .07 + (i % 2) * .04 + Math.sin(t * .8 + i * 1.7) * .02;
+    const x = 180 + i * 230, w = 70 + (i % 3) * 45, a = .05 + (i % 2) * .025 + Math.sin(t * .4 + i * 1.7) * .01;
     ctx.save(); ctx.translate(x, -60); ctx.rotate(-.42 + sway);
     const g = ctx.createLinearGradient(0, 0, 0, 1300); g.addColorStop(0, `rgba(240,200,120,${a})`); g.addColorStop(1, 'rgba(240,200,120,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-w * .4, 0); ctx.lineTo(w * .4, 0); ctx.lineTo(w * 1.3, 1300); ctx.lineTo(-w * 1.3, 1300); ctx.closePath(); ctx.fill();
@@ -163,12 +164,12 @@ function drawGodRays(ctx, t) {
   }
   ctx.restore();
 }
-const DUST_MOTES = Array.from({ length: 70 }, (_, i) => { const R = rng(i * 7 + 3); return { x: R() * W, y: R() * H * .8, r: 1.5 + R() * 3.5, speed: 6 + R() * 14, phase: R() * TAU }; });
+const DUST_MOTES = Array.from({ length: 35 }, (_, i) => { const R = rng(i * 7 + 3); return { x: R() * W, y: R() * H * .8, r: 1.5 + R() * 3.5, speed: 6 + R() * 14, phase: R() * TAU }; });
 function drawDustMotes(ctx, t) {
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
   DUST_MOTES.forEach(m => {
     const x = (m.x + t * m.speed + Math.sin(t * .6 + m.phase) * 20) % W, y = (m.y - t * m.speed * .4 + H) % H;
-    ctx.globalAlpha = .35 + Math.sin(t * 1.4 + m.phase) * .25;
+    ctx.globalAlpha = .22 + Math.sin(t * .9 + m.phase) * .12;
     circle(ctx, x, y, m.r); ctx.fillStyle = '#fbe9c4'; ctx.fill();
   });
   ctx.restore();

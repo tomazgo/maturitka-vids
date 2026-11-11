@@ -116,7 +116,8 @@ def word_at(word, line):
 
 # the first sentence of every shot after the first (must match addShot calls in shots.js)
 SHOT_FIRST_LINES = [1, 3, 4, 6, 7, 9, 10, 12, 14, 16, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 34, 35]
-for line in SHOT_FIRST_LINES: place(sfx, whoosh(.36), line_start(line) - .14 - .22, .3)
+# soft whoosh centred on each 1.5 s ink-bleed cut (cut sits .25 s before the sentence)
+for line in SHOT_FIRST_LINES: place(sfx, whoosh(.6), line_start(line) - .25 - .3, .2)
 
 def pop_at(word, line, f=620, g=.35): place(sfx, pop(f), word_at(word, line), g)
 
@@ -198,7 +199,7 @@ gain = np.where(envv > .15, (.15 / np.maximum(envv, 1e-6)) ** .4, 1.0); vo = vo 
 vo = vo / np.max(np.abs(vo)) * .9
 VO = np.zeros(N); VO[:min(N, len(vo))] = vo[:N]
 # no background music: voice plus sound effects only
-mixL = VO * 1.0 + sfx * .7
+mixL = VO * 1.0 + sfx * .45  # effects stay well under the voice
 mixR = mixL.copy()
 out = np.stack([mixL, mixR], 1)
 fade = np.ones(N); fl = int(.5 * SR); fade[-fl:] = np.linspace(1, 0, fl); out *= fade[:, None]

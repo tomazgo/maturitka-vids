@@ -3,11 +3,11 @@ const STUDENT = { cols: [PRESENT.teal, PRESENT.teal], hair: { style: 'short', co
 const FRIEND = { cols: [PRESENT.coral, '#f6f1e8'], hair: { style: 'ponytail', col: '#c98a2e' }, blush: true };
 const EXAMINER = { cols: ['#3b3a3f', '#3b3a3f'], hair: { style: 'bun', col: '#9a9a9a' }, glasses: true };
 const C = (base, extra) => Object.assign({}, base, extra);
-const handheld = (t, a = 3) => shake(t * .2, a * .25, 1, 2);
+const handheld = (t, a = 1.5) => shake(t * .15, a * .2, 1, 2);
 const centerCam = (t, z = 1, dx = 0, dy = 0, a = 3) => { const hh = handheld(t, a); return { x: W / 2 + dx + hh[0], y: H / 2 + dy + hh[1], z, r: 0 }; };
 const walkLegs = (t, sp = 9, amp = .5) => ({ L: [Math.sin(t * sp) * amp + .05, -Math.max(0, Math.sin(t * sp + 1)) * .7], R: [-Math.sin(t * sp) * amp + .05, -Math.max(0, -Math.sin(t * sp + 1)) * .7] });
 const walkArms = (t, sp = 9) => ({ L: [.3 - Math.sin(t * sp) * .4, -.3], R: [.3 + Math.sin(t * sp) * .4, -.3] });
-const popIn = (lt, at, length = .3) => kf(lt, [[at, 0], [at + length, 1, backOut]]);
+const popIn = (lt, at, length = .5) => kf(lt, [[at, 0], [at + length, 1, easeOut]]);
 
 // ---------- timing: shots follow the voice, so they survive a re-voice without hand editing ----------
 const normalise = word => word.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '');
@@ -66,9 +66,9 @@ shot({ line: 1 }, function (ctx, lt, t, start) {
 
 // ---------- 2: flying is fast, expensive and bad for the planet ----------
 shot({ line: 2 }, function (ctx, lt, t, start) {
-  const cam = centerCam(t, 1.0, 0, 0, 5);
+  const cam = centerCam(t, 1.0, 0, 0, 1.5);
   applyCam(ctx, cam, .3); drawSkyGradient(ctx, '#6fb7da', PRESENT.skyLight);
-  for (let i = 0; i < 5; i++) drawFlatCloud(ctx, ((i * 480 - t * 260) % (W + 800) + W + 800) % (W + 800) - 400, 200 + (i % 3) * 230, .9 + (i % 2) * .3);
+  for (let i = 0; i < 5; i++) drawFlatCloud(ctx, ((i * 480 - t * 120) % (W + 800) + W + 800) % (W + 800) - 400, 200 + (i % 3) * 230, .9 + (i % 2) * .3);
   applyCam(ctx, cam, 1);
   const fastAt = wordAt('fastest', 2) - start, moneyAt = wordAt('expensive', 2) - start, planetAt = wordAt('planet', 2) - start;
   const planeX = kf(lt, [[0, -500], [fastAt + .6, 900, easeOut]]);

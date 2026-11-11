@@ -10,7 +10,7 @@ window.SHOT_SPANS = SHOTS.map((s, i) => [toNew(s.start), i === SHOTS.length - 1 
 const TOTAL_FRAMES = Math.round(DUR * FPS);
 
 // ---------- present-day look: clean colours, smooth 30 fps motion, quick slide transitions ----------
-const TRANSITION_HALF = .22; // slide / zoom transition lasts .44 s around each cut
+const TRANSITION_HALF = .4; // slide / zoom transition lasts .8 s around each cut
 const BACKGROUND = '#fbf7f0';
 const makeCanvas = (w = W, h = H) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const sceneA = makeCanvas(), sceneACtx = sceneA.getContext('2d');
@@ -73,20 +73,17 @@ function activeTransition(t) {
   }
   return null;
 }
-// the old shot slides out to the left while the new one slides in, with a light motion smear
+// the old shot slides out to the left while the new one slides in, no motion smear
 function drawPush(progress) {
-  const k = ease(progress), offset = k * W, smear = Math.sin(progress * Math.PI) * 60;
+  const offset = ease(progress) * W;
   out.drawImage(sceneA, -offset, 0);
   out.drawImage(sceneB, W - offset, 0);
-  out.globalAlpha = .25 * Math.sin(progress * Math.PI);
-  out.drawImage(sceneA, -offset - smear, 0); out.drawImage(sceneB, W - offset + smear, 0);
-  out.globalAlpha = 1;
 }
 // the old shot zooms towards the camera and fades, the new one settles from slightly bigger
 function drawZoom(progress) {
   const k = ease(progress);
   const drawScaled = (img, scale, alpha) => { out.globalAlpha = alpha; out.drawImage(img, W / 2 - W * scale / 2, H / 2 - H * scale / 2, W * scale, H * scale); };
-  drawScaled(sceneA, 1 + k * .35, 1);
+  drawScaled(sceneA, 1 + k * .15, 1);
   drawScaled(sceneB, 1.15 - k * .15, k);
   out.globalAlpha = 1;
 }

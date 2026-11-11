@@ -192,7 +192,7 @@ voice *= np.where(envelope > .15, (.15 / np.maximum(envelope, 1e-6)) ** .4, 1.0)
 voice = voice / np.max(np.abs(voice)) * .9
 voice_track = np.zeros(N); voice_track[:min(N, len(voice))] = voice[:N]
 
-mix = voice_track + sfx * .7  # no background music
+mix = voice_track + sfx * .45  # no background music; effects stay well under the voice
 fade_length = int(.5 * SR); mix[-fade_length:] *= np.linspace(1, 0, fade_length)
 stereo = np.stack([mix, mix], 1)
 stereo = stereo / np.max(np.abs(stereo)) * .89
