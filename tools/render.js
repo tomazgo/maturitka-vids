@@ -10,10 +10,18 @@ const fs = require('fs');
   if (process.argv[2] !== 'count') page.on('console', m => console.log('[page]', m.text()));
   page.on('pageerror', e => console.log('[err]', e.message));
   await page.goto('file://' + process.cwd() + '/web/index.html');
+  await page.evaluate(() => window.ASSETS_READY || Promise.resolve());
   await page.evaluate(async () => { await document.fonts.load('700 40px Poppins'); await document.fonts.load("700 40px 'Space Grotesk'"); await document.fonts.load('700 40px Lora'); await document.fonts.load('600 40px Lora'); });
   const total = await page.evaluate(() => window.TOTAL_FRAMES);
-  if (mode === 'count') {
-    console.log(await page.evaluate(() => SHOTS.length));
+  if (mode === 'timing') {
+    fs.mkdirSync('audio', { recursive: true });
+    const timing = await page.evaluate(() => ({
+      duration: window.TOTAL_FRAMES / FPS,
+      outroStart: window.OUTRO_START == null ? null : Math.round(window.OUTRO_START * FPS) / FPS,
+    }));
+    fs.writeFileSync('audio/render-timing.json', JSON.stringify(timing));
+  } else if (mode === 'count') {
+    console.log(await page.evaluate(() => window.SHOT_SPANS ? window.SHOT_SPANS.length : SHOTS.length));
   } else if (mode === 'stills') {
     const times = process.argv[3].split(',').map(Number);
     fs.mkdirSync('stills', { recursive: true });

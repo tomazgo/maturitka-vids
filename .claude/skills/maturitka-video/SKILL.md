@@ -20,6 +20,13 @@ transitions. Your job is the script, the scenes (`shots.js`) and the sound effec
 
 `tools/new-video.sh <slug>` (slug in ASCII kebab case, e.g. `maco-mliec`).
 
+If the user says the video is for **YouTube**, use `tools/new-video.sh <slug> youtube`
+(or set the existing video's `style.txt` to `youtube`). Read `docs/style-guide-youtube.md`.
+Always deliver **two exports**: `<slug>-web.mp4` without the outro for the website,
+and `<slug>-youtube.mp4` with the animated official-logo outro and its sound effects.
+Keep one shared story/script/voice; do not manually append outro shots or narration.
+`tools/build.sh` renders the story once and creates both exports automatically.
+
 Write `videos/<slug>/script.json`: a JSON list of 6–10 Slovak sentences, about 80–110 words in total.
 For a 2–3 min walkthrough: 30–35 sentences, about 320 words (Lukas at −5 % with 0.5 s pauses speaks about 2.5 words per second).
 
@@ -96,6 +103,8 @@ SKIP_VOICE=1 tools/build.sh videos/<slug>
 ```
 
 Verify with `ffprobe` (duration, 1920×1080, audio stream) and report the path to the user.
+For YouTube requests, verify and report both `-web.mp4` and `-youtube.mp4`; the YouTube
+version must be 12 seconds longer and its outro effects must be audible.
 Do not commit rendered videos or `.env`.
 
 ## Token budget

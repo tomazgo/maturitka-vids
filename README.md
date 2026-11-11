@@ -4,14 +4,17 @@ Vysvetľujúce videá pre Maturitka Formalitka v štýle „atrament a akvarel�
 
 ![Finálny štýl](samples/finalny-styl.jpg)
 
-## Dva štýly
+## Tri štýly
 
 | Štýl | Na čo | Engine | Skill | Príklad |
 |---|---|---|---|---|
 | Atrament a akvarel | slovenská literatúra, slovenský hlas | `engine/` | `maturitka-video` | `examples/bacik-z-chocholova/`, `examples/tri-gastanove-kone/` |
 | Present | témy ANJ maturity, britský anglický hlas, svetlé súčasné prostredie | `engine/` + `engine-present/` | `anj-video` | `examples/travelling/` |
+| YouTube | rovnaká literatúra + 12 s outro v grafike webu | `engine/` + `engine-youtube/` | `maturitka-video` | `videos/ukazka-youtube/` |
 
-Obe používajú rovnaké teal titulky a **nemajú hudbu v pozadí**, iba zvukové efekty. Štýl videa určuje súbor `style.txt` v jeho priečinku, hlas `voice.txt` a tempo `rate.txt`.
+Všetky používajú rovnaké teal titulky a **nemajú hudbu v pozadí**, iba zvukové efekty. Štýl videa určuje súbor `style.txt` v jeho priečinku, hlas `voice.txt` a tempo `rate.txt`.
+
+YouTube variant vytvoríš cez `tools/new-video.sh moje-video youtube`. V existujúcom literárnom videu stačí vytvoriť `style.txt` s hodnotou `youtube` a znovu ho zostaviť. Build automaticky vyexportuje **dve verzie**: `<slug>-web.mp4` bez outra na stránku a `<slug>-youtube.mp4` s outrom na YouTube. Príbeh sa vykresľuje iba raz. Outro sa pridá automaticky aj pri prečasovanom hlase; netreba upravovať `shots.js`, scenár ani `audio.py`. Obsahuje adresu **maturitkaformalitka.sk**, „Videá · Maturitné témy · AI maturita“ a výzvu na odber. Animácie sprevádzajú jemné zvukové efekty (whoosh a krátke cinknutia), bez hudby. Keď používateľ požiada o YouTube video, vždy priprav obe verzie. Podrobnosti: [docs/style-guide-youtube.md](docs/style-guide-youtube.md).
 
 ## Ako vyrobiť video s Claude Code
 

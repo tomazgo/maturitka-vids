@@ -10,6 +10,12 @@ and do not restyle the engine, captions or transitions unless the user asks.
 English (ANJ) topic videos use the present-day style: follow `.claude/skills/anj-video/SKILL.md` and
 `docs/style-guide-present.md`. Neither style has background music, only sound effects.
 
+YouTube literature videos use `style.txt` = `youtube`: the same ink story with an automatic
+12-second website-style outro with restrained sound effects. When the user says the video is for
+YouTube, always deliver BOTH `<slug>-web.mp4` (story only, for the website) and
+`<slug>-youtube.mp4` (same story + outro). The build exports both automatically. See `docs/style-guide-youtube.md`; create with
+`tools/new-video.sh <slug> youtube`. Do not append the outro manually to shots or narration.
+
 - User-facing text is in Slovak for literature videos and in English for ANJ videos. Code and comments in English.
 - Show the script and wait for approval before rendering. Show a stills contact sheet before the full build.
 - Never read, print or commit `.env` files or API keys.
